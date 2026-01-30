@@ -31,15 +31,11 @@ jobs:
         env:
           SRC_LGTV:    ${{ secrets.SRC_LGTV }}
           SRC_JTV:     ${{ secrets.SRC_JTV }}
-          SRC_ZEE5:    ${{ secrets.SRC_ZEE5 }}
           SRC_TATA_TV: ${{ secrets.SRC_TATA_TV }}
-          SRC_SONY:    ${{ secrets.SRC_SONY }}
         run: |
           wget -q -O sources/lgtv.m3u     "$SRC_LGTV"     || true
           wget -q -O sources/jtv.m3u      "$SRC_JTV"      || true
-          wget -q -O sources/zee5.m3u     "$SRC_ZEE5"     || true
           wget -q -O sources/tata_tv.m3u  "$SRC_TATA_TV"  || true
-          wget -q -O sources/sony.m3u     "$SRC_SONY"     || true
 
       # --------------------------------------------------
       # STEP 4: BUILD MASTER PLAYLIST
@@ -58,12 +54,6 @@ jobs:
           if [ -f Static/my_static ]; then
             sed '1d' Static/my_static >> "$TEMP_FILE"
           fi
-
-          # ---------------- ZEE5 (RAW) ----------------
-          [ -f sources/zee5.m3u ] && sed '1d' sources/zee5.m3u >> "$TEMP_FILE"
-
-          # ---------------- SONY (RAW) ----------------
-          [ -f sources/sony.m3u ] && sed '1d' sources/sony.m3u >> "$TEMP_FILE"
 
           # ---------------- TATA TV (KIDS ONLY) ----------------
           if [ -f sources/tata_tv.m3u ]; then
