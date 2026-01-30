@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v4
 
       # --------------------------------------------------
-      # STEP 2: CREATE REQUIRED FOLDERS (HARD GUARANTEE)
+      # STEP 2: CREATE REQUIRED FOLDERS
       # --------------------------------------------------
       - name: Prepare folders
         run: |
@@ -42,10 +42,10 @@ jobs:
       # --------------------------------------------------
       - name: Build playlist
         run: |
-          # HARD GUARANTEE
           mkdir -p build
 
           TEMP_FILE="build/liveent.tmp"
+          FILTERED_FILE="build/liveent.filtered"
           FINAL_FILE="build/liveent.xyn"
 
           echo "#EXTM3U" > "$TEMP_FILE"
@@ -74,11 +74,41 @@ jobs:
           # ---------------- JIOTV ----------------
           [ -f sources/jtv.m3u ] && sed '1d' sources/jtv.m3u >> "$TEMP_FILE"
 
-          # ---------------- DEDUPLICATION ----------------
+          # --------------------------------------------------
+          # GLOBAL CHANNEL NAME FILTER (CASE-INSENSITIVE)
+          # Edit keywords freely later
+          # --------------------------------------------------
+          awk '
+            BEGIN {
+              IGNORECASE = 1
+            }
+
+            /^#EXTINF/ {
+              name = $0
+              sub(/.*?,/, "", name)
+
+              if (name ~ /(tamil|telugu|kannada|bangla|bengali|malayalam|urdu|gujarati|odia|oriya|punjabi|assamese|english|test)/) {
+                skip = 1
+              } else {
+                skip = 0
+                print
+              }
+              next
+            }
+
+            !skip {
+              print
+            }
+          ' "$TEMP_FILE" > "$FILTERED_FILE"
+
+          # --------------------------------------------------
+          # DEDUPLICATION (BY CHANNEL NAME — FIRST WINS)
+          # --------------------------------------------------
           awk '
             /^#EXTINF/ {
               name = $0
               sub(/.*?,/, "", name)
+
               if (!(name in seen)) {
                 seen[name] = 1
                 keep = 1
@@ -88,8 +118,9 @@ jobs:
               }
               next
             }
+
             keep { print }
-          ' "$TEMP_FILE" > "$FINAL_FILE"
+          ' "$FILTERED_FILE" > "$FINAL_FILE"
 
           # ---------------- CLEANUP ----------------
           sed -i '/githubusercontent.com/d' "$FINAL_FILE"
