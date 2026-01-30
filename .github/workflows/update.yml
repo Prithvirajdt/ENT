@@ -1,8 +1,5 @@
 name: Update Master Playlist
 
-# --------------------------------------------------
-# TRIGGERS
-# --------------------------------------------------
 on:
   workflow_dispatch:
   schedule:
@@ -14,30 +11,21 @@ jobs:
 
     steps:
       # --------------------------------------------------
-      # STEP 1: CHECKOUT REPOSITORY
+      # STEP 1: CHECKOUT
       # --------------------------------------------------
       - name: Checkout repo
         uses: actions/checkout@v4
 
       # --------------------------------------------------
-      # STEP 2: ENSURE build/ EXISTS (GIT-TRACKED)
+      # STEP 2: CREATE REQUIRED FOLDERS (HARD GUARANTEE)
       # --------------------------------------------------
-      - name: Ensure build folder exists
+      - name: Prepare folders
         run: |
           mkdir -p build
-          touch build/.gitkeep
-          git add build/.gitkeep
-          git commit -m "Ensure build folder exists" || echo "No changes"
-          git push || echo "Push skipped"
+          mkdir -p sources
 
       # --------------------------------------------------
-      # STEP 3: CREATE SOURCES FOLDER
-      # --------------------------------------------------
-      - name: Create sources folder
-        run: mkdir -p sources
-
-      # --------------------------------------------------
-      # STEP 4: DOWNLOAD SOURCE PLAYLISTS (SECRETS)
+      # STEP 3: DOWNLOAD SOURCES (SECRETS)
       # --------------------------------------------------
       - name: Download playlists
         env:
@@ -47,83 +35,60 @@ jobs:
           SRC_TATA_TV: ${{ secrets.SRC_TATA_TV }}
           SRC_SONY:    ${{ secrets.SRC_SONY }}
         run: |
-          wget -q -O sources/lgtv.m3u     "$SRC_LGTV"
-          wget -q -O sources/jtv.m3u      "$SRC_JTV"
-          wget -q -O sources/zee5.m3u     "$SRC_ZEE5"
-          wget -q -O sources/tata_tv.m3u  "$SRC_TATA_TV"
-          wget -q -O sources/sony.m3u     "$SRC_SONY"
+          wget -q -O sources/lgtv.m3u     "$SRC_LGTV"     || true
+          wget -q -O sources/jtv.m3u      "$SRC_JTV"      || true
+          wget -q -O sources/zee5.m3u     "$SRC_ZEE5"     || true
+          wget -q -O sources/tata_tv.m3u  "$SRC_TATA_TV"  || true
+          wget -q -O sources/sony.m3u     "$SRC_SONY"     || true
 
       # --------------------------------------------------
-      # STEP 5: BUILD MASTER PLAYLIST
+      # STEP 4: BUILD MASTER PLAYLIST
       # --------------------------------------------------
-      - name: Build master playlist
+      - name: Build playlist
         run: |
+          # HARD GUARANTEE
           mkdir -p build
 
-          # --------------------------------------------------
-          # CREATE TEMP WORKING FILE
-          # --------------------------------------------------
-          echo "#EXTM3U" > build/liveent.tmp
+          TEMP_FILE="build/liveent.tmp"
+          FINAL_FILE="build/liveent.xyn"
 
-          # ==================================================
-          # STATIC PLAYLIST (HIGHEST PRIORITY)
-          # ==================================================
-          if [ -f static/my_static.m3u ]; then
-            sed '1d' static/my_static.m3u >> build/liveent.tmp
+          echo "#EXTM3U" > "$TEMP_FILE"
+
+          # ---------------- STATIC ----------------
+          if [ -f Static/my_static ]; then
+            sed '1d' Static/my_static >> "$TEMP_FILE"
           fi
 
-          # ==================================================
-          # ZEE5 (RAW)
-          # ==================================================
-          if [ -f sources/zee5.m3u ]; then
-            sed '1d' sources/zee5.m3u >> build/liveent.tmp
-          fi
+          # ---------------- ZEE5 (RAW) ----------------
+          [ -f sources/zee5.m3u ] && sed '1d' sources/zee5.m3u >> "$TEMP_FILE"
 
-          # ==================================================
-          # SONY (RAW)
-          # ==================================================
-          if [ -f sources/sony.m3u ]; then
-            sed '1d' sources/sony.m3u >> build/liveent.tmp
-          fi
+          # ---------------- SONY (RAW) ----------------
+          [ -f sources/sony.m3u ] && sed '1d' sources/sony.m3u >> "$TEMP_FILE"
 
-          # ==================================================
-          # TATA TV (FILTER: ONLY KIDS CHANNELS)
-          # ==================================================
+          # ---------------- TATA TV (KIDS ONLY) ----------------
           if [ -f sources/tata_tv.m3u ]; then
-            sed '1d' sources/tata_tv.m3u \
-            | awk '
-                /^#EXTINF/ {
-                  keep = ($0 ~ /group-title="KIDS - 24X7"/)
-                  if (keep) {
-                    gsub(/group-title="KIDS - 24X7"/, "group-title=\"Kids 24/7\"")
-                  }
+            sed '1d' sources/tata_tv.m3u | awk '
+              /^#EXTINF/ {
+                keep = ($0 ~ /group-title="KIDS - 24X7"/)
+                if (keep) {
+                  gsub(/group-title="KIDS - 24X7"/, "group-title=\"Kids 24/7\"")
                 }
-                keep { print }
-              ' >> build/liveent.tmp
+              }
+              keep { print }
+            ' >> "$TEMP_FILE"
           fi
 
-          # ==================================================
-          # LGTV (RAW)
-          # ==================================================
-          if [ -f sources/lgtv.m3u ]; then
-            sed '1d' sources/lgtv.m3u >> build/liveent.tmp
-          fi
+          # ---------------- LGTV ----------------
+          [ -f sources/lgtv.m3u ] && sed '1d' sources/lgtv.m3u >> "$TEMP_FILE"
 
-          # ==================================================
-          # JIOTV (RAW)
-          # ==================================================
-          if [ -f sources/jtv.m3u ]; then
-            sed '1d' sources/jtv.m3u >> build/liveent.tmp
-          fi
+          # ---------------- JIOTV ----------------
+          [ -f sources/jtv.m3u ] && sed '1d' sources/jtv.m3u >> "$TEMP_FILE"
 
-          # --------------------------------------------------
-          # DEDUPLICATION (BY CHANNEL NAME – FIRST WINS)
-          # --------------------------------------------------
+          # ---------------- DEDUPLICATION ----------------
           awk '
             /^#EXTINF/ {
               name = $0
               sub(/.*?,/, "", name)
-
               if (!(name in seen)) {
                 seen[name] = 1
                 keep = 1
@@ -134,22 +99,25 @@ jobs:
               next
             }
             keep { print }
-          ' build/liveent.tmp > build/liveent.xyn
+          ' "$TEMP_FILE" > "$FINAL_FILE"
 
-          # --------------------------------------------------
-          # SAFETY CLEANUP
-          # --------------------------------------------------
-          sed -i '/githubusercontent.com/d' build/liveent.xyn
-          sed -i '/raw.githubusercontent.com/d' build/liveent.xyn
+          # ---------------- CLEANUP ----------------
+          sed -i '/githubusercontent.com/d' "$FINAL_FILE"
+          sed -i '/raw.githubusercontent.com/d' "$FINAL_FILE"
+
+          # ---------------- VERIFY ----------------
+          echo "---- BUILD OUTPUT ----"
+          ls -lh build
+          wc -l "$FINAL_FILE"
 
       # --------------------------------------------------
-      # STEP 6: COMMIT & PUSH FINAL PLAYLIST
+      # STEP 5: COMMIT & PUSH
       # --------------------------------------------------
-      - name: Commit and push playlist
+      - name: Commit & push
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
           git add build/liveent.xyn
-          git diff-index --quiet HEAD || git commit -m "Auto update liveent playlist"
-          git push || echo "No changes to push"
+          git diff --cached --quiet || git commit -m "Auto update liveent playlist"
+          git push
