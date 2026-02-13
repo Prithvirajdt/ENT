@@ -726,6 +726,31 @@ https://amg01605-ndtv-amg01605c3-lg-in-2754.playouts.now.amagi.tv/playlist/amg01
 #EXTINF:-1 tvg-logo="https://dvvlqr1rtlak3.cloudfront.net/Euronews/euronews_logo_resized_400x200_updated.png" group-title="News",Euro News
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 alex/8875 Safari/537.36
 https://amg00882-amg00882c2-lg-in-5560.playouts.now.amagi.tv/playlist/amg00882-euronewsfast-euronewseng-lgin/playlist.m3u8
+
+#EXTINF:-1 tvg-id="63651" tvg-name="Kings Of Comedy" group-title="Comedy", Kings Of Comedy
+https://jmp2.uk/stvp-IN46000184H
+
+#EXTINF:-1 tvg-id="63651" tvg-name="The Movie Club" group-title="Movies", The Movie Club
+https://jmp2.uk/stvp-IN38000072R
+
+#EXTINF:-1 tvg-id="63651" tvg-name="South Station" group-title="Movies", South Station
+https://jmp2.uk/stvp-IN3800008CX
+
+#EXTINF:-1 tvg-id="63651" tvg-name="Comedy King" group-title="Comedy", Comedy King
+https://jmp2.uk/stvp-IN3600006RT
+
+#EXTINF:-1 tvg-id="63651" tvg-name="Hollywood Desi" group-title="Movies", Hollywood Desi
+https://jmp2.uk/stvp-IN3800010SH
+
+#EXTINF:-1 tvg-id="63651" tvg-name="Crime Tak" group-title="Entertainment", Crime Tak
+https://jmp2.uk/stvp-IN2600015OO
+
+#EXTINF:-1 tvg-id="63651" tvg-name="House of Crime" group-title="Entertainment", House of Crime
+https://jmp2.uk/stvp-IN4600004HW
+
+#EXTINF:-1 tvg-id="63651" tvg-name="Crime Scene TV" group-title="Entertainment", Crime Scene TV
+https://jmp2.uk/stvp-IN24000030L
+
 #Generated on 1766625114
 #EXTINF:-1 group-title="HOTSTAR" tvg-logo="usus",24/7 BIG BOSS
 https://livetv-push.hotstar.com/dash/live/2002466/sshindiwv/master.mpd?|Cookie=hdntl=exp=1766237995~acl=*sshindi*~id=a272c620b60b4d5379a1ec54e5cac97c~data=hdntl~hmac=64223c8bf63067364f35cad5a50c7b038f40bc4c9a97c8aa05a9c2cb99a575b9&User-agent=Hotstar;in.startv.hotstar/25.02.24.8.11169%20(Android/15)&Referer=https://www.hotstar.com/&Origin=https://www.hotstar.com&drmScheme=clearkey&drmLicense=fe7718fbb3fb4ba78c07cc0f578744e6:624e24b1843b459fab0a949609416f0d
