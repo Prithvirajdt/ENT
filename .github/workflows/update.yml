@@ -13,11 +13,18 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Create folders
+      - name: Ensure build folder exists
         run: |
-          mkdir -p build sources
+          mkdir -p build
+          touch build/.gitkeep
+          git add build/.gitkeep
+          git commit -m "Ensure build folder exists" || echo "No changes"
+          git push || echo "Push skipped"
 
-      - name: Download sources
+      - name: Create sources folder
+        run: mkdir -p sources
+
+      - name: Download playlists (sources hidden)
         env:
           SRC_JTV:     ${{ secrets.SRC_JTV }}
           SRC_LGTV:    ${{ secrets.SRC_LGTV }}
@@ -26,128 +33,99 @@ jobs:
           SRC_TATA_TV: ${{ secrets.SRC_TATA_TV }}
           SRC_SONY:    ${{ secrets.SRC_SONY }}
         run: |
-          wget -q -O sources/jtv.m3u      "$SRC_JTV"     || true
-          wget -q -O sources/lgtv.m3u     "$SRC_LGTV"    || true
-          wget -q -O sources/zee5.m3u     "$SRC_ZEE5"    || true
-          wget -q -O sources/jtvback.m3u  "$SRC_JTVBACK" || true
-          wget -q -O sources/tata_tv.m3u  "$SRC_TATA_TV" || true
-          wget -q -O sources/sony.m3u     "$SRC_SONY"    || true
+          wget -q -O sources/jtv.m3u      "$SRC_JTV"     || echo "JTV failed"
+          wget -q -O sources/lgtv.m3u     "$SRC_LGTV"    || echo "LGTV failed"
+          wget -q -O sources/zee5.m3u     "$SRC_ZEE5"    || echo "ZEE5 failed"
+          wget -q -O sources/jtvback.m3u  "$SRC_JTVBACK" || echo "JTVBACK failed"
+          wget -q -O sources/tata_tv.m3u  "$SRC_TATA_TV" || echo "TATA failed"
+          wget -q -O sources/sony.m3u     "$SRC_SONY"    || echo "SONY failed"
 
-      - name: Build base playlist
+      - name: Build master playlist
         run: |
+          mkdir -p build
           echo "#EXTM3U" > build/liveent.tmp
 
-          # static
-          [ -s staticf/static.m3u ] && sed '1d' staticf/static.m3u >> build/liveent.tmp
+          # --------------------------------------------------
+          # STATIC PLAYLIST (FIXED PATH)
+          # --------------------------------------------------
+          if [ -s staticf/static.m3u ]; then
+            sed '1d' staticf/static.m3u >> build/liveent.tmp
+          fi
 
-          # sources
-          for f in sources/*.m3u; do
-            [ -s "$f" ] && sed '1d' "$f" >> build/liveent.tmp
-          done
+          # ---------- SOURCES ----------
+          if [ -s sources/jtv.m3u ]; then
+            sed '1d' sources/jtv.m3u >> build/liveent.tmp
+          fi
 
-      - name: Filter + Dedup
-        run: |
+          if [ -s sources/lgtv.m3u ]; then
+            sed '1d' sources/lgtv.m3u >> build/liveent.tmp
+          fi
+
+          if [ -s sources/zee5.m3u ]; then
+            sed '1d' sources/zee5.m3u >> build/liveent.tmp
+          fi
+
+          if [ -s sources/sony.m3u ]; then
+            sed '1d' sources/sony.m3u >> build/liveent.tmp
+          fi
+
+          if [ -s sources/jtvback.m3u ]; then
+            sed '1d' sources/jtvback.m3u >> build/liveent.tmp
+          fi
+
+          if [ -s sources/tata_tv.m3u ]; then
+            sed '1d' sources/tata_tv.m3u >> build/liveent.tmp
+          fi
+
+          # ---------- FILTER ----------
           awk '
-          BEGIN { IGNORECASE=1 }
+            /^#EXTINF/ {
+              name = $0
+              sub(/.*?,/, "", name)
 
-          /^#EXTINF/ {
-            name=$0
-            sub(/.*?,/, "", name)
+              if (tolower(name) ~ /(telugu|tamil)/) {
+                skip = 1
+              } else {
+                skip = 0
+                print
+              }
+              next
+            }
+            !skip { print }
+          ' build/liveent.tmp > build/liveent.filtered
 
-            if (name ~ /(telugu|tamil)/) {
-              skip=1
-            } else {
-              skip=0
-              key=tolower(name)
+          mv build/liveent.filtered build/liveent.tmp
+
+          # ---------- DEDUP ----------
+          awk '
+            /^#EXTINF/ {
+              name = $0
+              sub(/.*?,/, "", name)
+
+              key = tolower(name)
               gsub(/^[ \t]+|[ \t]+$/, "", key)
 
               if (!(key in seen)) {
-                seen[key]=1
-                keep=1
+                seen[key] = 1
+                keep = 1
                 print
               } else {
-                keep=0
+                keep = 0
               }
+              next
             }
-            next
-          }
-
-          keep { print }
-
+            keep { print }
           ' build/liveent.tmp > build/liveent.xyn
 
-      - name: Match with VortexVision
-        run: |
-          wget -q -O vortex.m3u https://raw.githubusercontent.com/Prithvirajdt/Live-Tv/refs/heads/main/build/VortexVision.xyn
-
-          # create map
-          awk '
-          /^#EXTINF/ {
-            line=$0
-
-            name=line
-            sub(/.*?,/, "", name)
-            key=tolower(name)
-            gsub(/^[ \t]+|[ \t]+$/, "", key)
-
-            group=""
-            if (match(line, /group-title="[^"]+"/)) {
-              group=substr(line, RSTART+13, RLENGTH-14)
-            }
-
-            map[key]=group
-          }
-
-          END {
-            for (k in map) print k "|" map[k]
-          }
-          ' vortex.m3u > map.txt
-
-          # filter + replace
-          awk -F'|' '
-          NR==FNR {
-            map[$1]=$2
-            next
-          }
-
-          /^#EXTINF/ {
-            line=$0
-
-            name=line
-            sub(/.*?,/, "", name)
-            key=tolower(name)
-            gsub(/^[ \t]+|[ \t]+$/, "", key)
-
-            if (key in map) {
-              grp=map[key]
-
-              gsub(/group-title="[^"]*"/, "", line)
-              sub(/#EXTINF:-1/, "#EXTINF:-1 group-title=\"" grp "\"", line)
-
-              print line
-              keep=1
-            } else {
-              keep=0
-            }
-            next
-          }
-
-          keep { print }
-
-          ' map.txt build/liveent.xyn > build/final.m3u
-
-          mv build/final.m3u build/liveent.xyn
-
-      - name: Clean
-        run: |
+          # ---------- CLEAN ----------
           sed -i '/githubusercontent.com/d' build/liveent.xyn
           sed -i '/raw.githubusercontent.com/d' build/liveent.xyn
 
-      - name: Commit
+      - name: Commit and push playlist
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
           git add build/liveent.xyn
-          git commit -m "update playlist" || echo "no changes"
-          git push
+          git diff-index --quiet HEAD || git commit -m "Auto update liveent playlist"
+          git push || echo "No changes to push"
