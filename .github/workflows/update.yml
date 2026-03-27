@@ -78,7 +78,7 @@ jobs:
 
       - name: Match with VortexVision
         run: |
-          wget -q -O vortex.m3u https://raw.githubusercontent.com/Prithvirajdt/LiveTv/refs/heads/main/build/VortexVision.xyn
+          wget -q -O vortex.m3u https://raw.githubusercontent.com/Prithvirajdt/Live-Tv/refs/heads/main/build/VortexVision.xyn
 
           # create map
           awk '
