@@ -1,9 +1,15 @@
 name: Update Master Playlist
 
+# --------------------------------------------------
+# WHEN THIS WORKFLOW RUNS
+# --------------------------------------------------
+# 1. Manually (workflow_dispatch)
+# 2. Automatically every 6 hours
+# --------------------------------------------------
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 */6 * * *'
+    - cron: '0 */2 * * *'
 
 jobs:
   build:
@@ -11,83 +17,121 @@ jobs:
 
     steps:
       # --------------------------------------------------
-      # STEP 1: CHECKOUT
+      # STEP 1: CHECKOUT REPOSITORY
       # --------------------------------------------------
       - name: Checkout repo
         uses: actions/checkout@v4
 
       # --------------------------------------------------
-      # STEP 2: CREATE REQUIRED FOLDERS
+      # STEP 2: ENSURE build/ DIRECTORY EXISTS
+      # - Required so Git tracks the folder
+      # - .gitkeep avoids empty-folder issues
       # --------------------------------------------------
-      - name: Prepare folders
+      - name: Ensure build folder exists
         run: |
           mkdir -p build
+          touch build/.gitkeep
+          git add build/.gitkeep
+          git commit -m "Ensure build folder exists" || echo "No changes"
+          git push || echo "Push skipped"
+
+      # --------------------------------------------------
+      # STEP 3: CREATE TEMP SOURCES FOLDER
+      # - Holds downloaded playlists
+      # --------------------------------------------------
+      - name: Create sources folder
+        run: |
           mkdir -p sources
 
       # --------------------------------------------------
-      # STEP 3: DOWNLOAD SOURCES (SECRETS)
+      # STEP 4: DOWNLOAD ALL SOURCE PLAYLISTS
+      # - URLs are stored securely in GitHub Secrets
+      # - Nothing sensitive is exposed in code
       # --------------------------------------------------
-      - name: Download playlists
+      - name: Download playlists (sources hidden)
         env:
-          SRC_LGTV:    ${{ secrets.SRC_LGTV }}
           SRC_JTV:     ${{ secrets.SRC_JTV }}
+          SRC_LGTV:    ${{ secrets.SRC_LGTV }}
+          SRC_ZEE5:    ${{ secrets.SRC_ZEE5 }}
+          SRC_JTVBACK: ${{ secrets.SRC_JTVBACK }}
           SRC_TATA_TV: ${{ secrets.SRC_TATA_TV }}
+          SRC_SONY:    ${{ secrets.SRC_SONY }}
         run: |
-          wget -q -O sources/lgtv.m3u     "$SRC_LGTV"     || true
-          wget -q -O sources/jtv.m3u      "$SRC_JTV"      || true
-          wget -q -O sources/tata_tv.m3u  "$SRC_TATA_TV"  || true
+          wget -q -O sources/jtv.m3u      "$SRC_JTV"
+          wget -q -O sources/lgtv.m3u     "$SRC_LGTV"
+          wget -q -O sources/zee5.m3u     "$SRC_ZEE5"
+          wget -q -O sources/jtvback.m3u  "$SRC_JTVBACK"
+          wget -q -O sources/tata_tv.m3u  "$SRC_TATA_TV"
+          wget -q -O sources/sony.m3u     "$SRC_SONY"
 
       # --------------------------------------------------
-      # STEP 4: BUILD MASTER PLAYLIST
+      # STEP 5: BUILD MASTER PLAYLIST
       # --------------------------------------------------
-      - name: Build playlist
+      - name: Build master playlist
         run: |
           mkdir -p build
 
-          TEMP_FILE="build/liveent.tmp"
-          FILTERED_FILE="build/liveent.filtered"
-          FINAL_FILE="build/liveent.xyn"
-
-          echo "#EXTM3U" > "$TEMP_FILE"
-
-          # ---------------- STATIC ----------------
-          if [ -f Static/my_static ]; then
-            sed '1d' Static/my_static >> "$TEMP_FILE"
-          fi
-
-          # ---------------- TATA TV (KIDS ONLY) ----------------
-          if [ -f sources/tata_tv.m3u ]; then
-            sed '1d' sources/tata_tv.m3u | awk '
-              /^#EXTINF/ {
-                keep = ($0 ~ /group-title="KIDS - 24X7"/)
-                if (keep) {
-                  gsub(/group-title="KIDS - 24X7"/, "group-title=\"Kids 24/7\"")
-                }
-              }
-              keep { print }
-            ' >> "$TEMP_FILE"
-          fi
-
-          # ---------------- LGTV ----------------
-          [ -f sources/lgtv.m3u ] && sed '1d' sources/lgtv.m3u >> "$TEMP_FILE"
-
-          # ---------------- JIOTV ----------------
-          [ -f sources/jtv.m3u ] && sed '1d' sources/jtv.m3u >> "$TEMP_FILE"
+          # Create temp playlist and write M3U header
+          echo "#EXTM3U" > build/VortexVision.tmp
 
           # --------------------------------------------------
-          # GLOBAL CHANNEL NAME FILTER (CASE-INSENSITIVE)
-          # Edit keywords freely later
+          # STATIC PLAYLIST (ALWAYS FIRST)
+          # --------------------------------------------------
+          if [ -f static/my_static.m3u ]; then
+            sed '1d' static/my_static.m3u >> build/VortexVision.tmp
+          fi
+
+          # ==================================================
+          # JIOTV
+          # ==================================================
+          if [ -f sources/jtv.m3u ]; then
+            sed '1d' sources/jtv.m3u >> build/VortexVision.tmp
+          fi
+
+          # ==================================================
+          # LGTV
+          # ==================================================
+          if [ -f sources/lgtv.m3u ]; then
+            sed '1d' sources/lgtv.m3u >> build/VortexVision.tmp
+          fi
+
+           # --------------------------------------------------
+          # ZEE5
+          # --------------------------------------------------
+          if [ -f sources/zee5.m3u ]; then
+            sed '1d' sources/zee5.m3u >> build/VortexVision.tmp
+          fi
+
+          # --------------------------------------------------
+          # SONY
+          # --------------------------------------------------
+          if [ -f sources/sony.m3u ]; then
+            sed '1d' sources/sony.m3u >> build/VortexVision.tmp
+          fi
+
+          # ==================================================
+          # JIOTVBACK
+          # ==================================================
+          if [ -f sources/jtvback.m3u ]; then
+            sed '1d' sources/jtvback.m3u >> build/VortexVision.tmp
+          fi
+
+          # --------------------------------------------------
+          # TATA TV: KEEP KIDS CHANNELS ONLY
+          # --------------------------------------------------
+          if [ -f sources/tata_tv.m3u ]; then
+            sed '1d' sources/tata_tv.m3u >> build/VortexVision.tmp
+          fi
+
+          # --------------------------------------------------
+          # REMOVE CHANNELS BY NAME (CASE-INSENSITIVE)
           # --------------------------------------------------
           awk '
-            BEGIN {
-              IGNORECASE = 1
-            }
-
             /^#EXTINF/ {
               name = $0
               sub(/.*?,/, "", name)
 
-              if (name ~ /(tamil|telugu|kannada|bangla|malayalam|english|test|wow|swayam|sathee|bie|cie|vidya|gujarat|bengali|asianet|maa|ptc|vijay|etv|aath|rongeen|raj|punjab|manorama|mahaa|jaya|gemini|udaya|salaam|biskope|surya|adithya|amrita|colors super$|arunprabha|girnar|kashir|oriya|saptagiri|urdu|podhigai|desi channel$|kairali|jalsha|studio|apex|flower|jonack|kalaignar|makkal|mango|may|mk|moon|nakshatra|bangalore|peppers|polimer|puthu|sanjha|sidharth|spondon|kiran|sun tv|sundrani|suvarna|thanthi|vaanavil|vasanth|vendhar|vissa|jomjomat|j movies|ktv|maha|mahua|pitaara|public m|sun life|tabbar|thalaa|tolly|chintu|chutti|kochu|kushi|naap|east|sun music|sun news|nick junior|sonic marathi$|rang$|sristi|teh|haryana|mh)/) {
+              if (tolower(name) ~ /(telugu|tamil)/) {
                 skip = 1
               } else {
                 skip = 0
@@ -95,14 +139,13 @@ jobs:
               }
               next
             }
+            !skip { print }
+          ' build/VortexVision.tmp > build/VortexVision.filtered
 
-            !skip {
-              print
-            }
-          ' "$TEMP_FILE" > "$FILTERED_FILE"
+          mv build/VortexVision.filtered build/VortexVision.tmp
 
           # --------------------------------------------------
-          # DEDUPLICATION (BY CHANNEL NAME — FIRST WINS)
+          # DEDUPLICATION (BY CHANNEL NAME, FIRST WINS)
           # --------------------------------------------------
           awk '
             /^#EXTINF/ {
@@ -118,27 +161,23 @@ jobs:
               }
               next
             }
-
             keep { print }
-          ' "$FILTERED_FILE" > "$FINAL_FILE"
+          ' build/VortexVision.tmp > build/VortexVision.xyn
 
-          # ---------------- CLEANUP ----------------
-          sed -i '/githubusercontent.com/d' "$FINAL_FILE"
-          sed -i '/raw.githubusercontent.com/d' "$FINAL_FILE"
-
-          # ---------------- VERIFY ----------------
-          echo "---- BUILD OUTPUT ----"
-          ls -lh build
-          wc -l "$FINAL_FILE"
+          # --------------------------------------------------
+          # SAFETY CLEANUP (BLOCK RAW GITHUB LINKS)
+          # --------------------------------------------------
+          sed -i '/githubusercontent.com/d' build/VortexVision.xyn
+          sed -i '/raw.githubusercontent.com/d' build/VortexVision.xyn
 
       # --------------------------------------------------
-      # STEP 5: COMMIT & PUSH
+      # STEP 6: COMMIT & PUSH FINAL PLAYLIST
       # --------------------------------------------------
-      - name: Commit & push
+      - name: Commit and push playlist
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-          git add build/liveent.xyn
-          git diff --cached --quiet || git commit -m "Auto update liveent playlist"
-          git push
+          git add build/VortexVision.xyn
+          git diff-index --quiet HEAD || git commit -m "Auto update VortexVision playlist"
+          git push || echo "No changes to push"
