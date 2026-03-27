@@ -48,8 +48,8 @@ jobs:
           # --------------------------------------------------
           # STATIC PLAYLIST (FIXED PATH)
           # --------------------------------------------------
-          if [ -s ENT/static/my_static.m3u ]; then
-            sed '1d' ENT/static/my_static.m3u >> build/liveent.tmp
+          if [ -s staticf/static.m3u ]; then
+            sed '1d' staticf/static.m3u >> build/liveent.tmp
           fi
 
           # ---------- SOURCES ----------
