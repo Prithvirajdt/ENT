@@ -3534,13 +3534,13 @@ https://jiotvmblive.cdn.jio.com/bpk-tv/Zoom_BTS/output/index.mpd
   <meta name="route-pattern" content="/login(.:format)" data-turbo-transient>
   <meta name="route-controller" content="sessions" data-turbo-transient>
   <meta name="route-action" content="new" data-turbo-transient>
-  <meta name="fetch-nonce" content="v2:c9eeb915-089d-d64c-0581-e43c5ea3428e">
+  <meta name="fetch-nonce" content="v2:8709dccc-86fb-527d-dc2f-c217c92e5b8d">
 
     
   <meta name="current-catalog-service-hash" content="701273d4944fb23919c770da2da3f33b6da9ed8e668f7249090e3e9f429343b5">
 
 
-  <meta name="request-id" content="7BC2:A14C5:116DADC:179FC4A:69C68102" data-pjax-transient="true"/><meta name="html-safe-nonce" content="dac9cbc7affe802751e93b47a98adad43b24c6f1fff571b693c855e399fa9bd3" data-pjax-transient="true"/><meta name="visitor-payload" content="eyJyZWZlcnJlciI6IiIsInJlcXVlc3RfaWQiOiI3QkMyOkExNEM1OjExNkRBREM6MTc5RkM0QTo2OUM2ODEwMiIsInZpc2l0b3JfaWQiOiIzNzM2MDA2NTkxNTgyMjA4MjU4IiwicmVnaW9uX2VkZ2UiOiJpYWQiLCJyZWdpb25fcmVuZGVyIjoiaWFkIn0=" data-pjax-transient="true"/><meta name="visitor-hmac" content="b6dbe3f04e7be09408a1e4b1f499e66124d93daa7ded590dd20b125b419887da" data-pjax-transient="true"/>
+  <meta name="request-id" content="5C02:3D4F19:11B9DE6:1813F64:69C6812E" data-pjax-transient="true"/><meta name="html-safe-nonce" content="6bbfb114419641810c2df95798ff9c58527e476fa1ab6dc2a41c23afb4369744" data-pjax-transient="true"/><meta name="visitor-payload" content="eyJyZWZlcnJlciI6IiIsInJlcXVlc3RfaWQiOiI1QzAyOjNENEYxOToxMUI5REU2OjE4MTNGNjQ6NjlDNjgxMkUiLCJ2aXNpdG9yX2lkIjoiMjk0MTgyODcyMDA2OTM0NTU4MiIsInJlZ2lvbl9lZGdlIjoiaWFkIiwicmVnaW9uX3JlbmRlciI6ImlhZCJ9" data-pjax-transient="true"/><meta name="visitor-hmac" content="b6865fa4c82360e21b4b190851a406b69682ed88a69a82543cba01d8fe82004e" data-pjax-transient="true"/>
 
 
 
@@ -3703,10 +3703,10 @@ https://jiotvmblive.cdn.jio.com/bpk-tv/Zoom_BTS/output/index.mpd
         <span class="js-stale-session-flash-signed-out" hidden>You signed out in another tab or window. <a class="Link--inTextBlock" href="">Reload</a> to refresh your session.</span>
         <span class="js-stale-session-flash-switched" hidden>You switched accounts on another tab or window. <a class="Link--inTextBlock" href="">Reload</a> to refresh your session.</span>
 
-    <button id="icon-button-adf4f7f4-c9e1-41d8-a282-32f1e66b2edf" aria-labelledby="tooltip-12cf75b9-3447-4996-8ded-a50c7947521a" type="button" data-view-component="true" class="Button Button--iconOnly Button--invisible Button--medium flash-close js-flash-close">  <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-x Button-visual">
+    <button id="icon-button-c1aaeec4-1241-4d08-8d70-3232f01c44d5" aria-labelledby="tooltip-471d0c46-c5e6-459d-b2f7-59e4881b3de0" type="button" data-view-component="true" class="Button Button--iconOnly Button--invisible Button--medium flash-close js-flash-close">  <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-x Button-visual">
     <path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z"></path>
 </svg>
-</button><tool-tip id="tooltip-12cf75b9-3447-4996-8ded-a50c7947521a" for="icon-button-adf4f7f4-c9e1-41d8-a282-32f1e66b2edf" popover="manual" data-direction="s" data-type="label" data-view-component="true" class="sr-only position-absolute">Dismiss alert</tool-tip>
+</button><tool-tip id="tooltip-471d0c46-c5e6-459d-b2f7-59e4881b3de0" for="icon-button-c1aaeec4-1241-4d08-8d70-3232f01c44d5" popover="manual" data-direction="s" data-type="label" data-view-component="true" class="sr-only position-absolute">Dismiss alert</tool-tip>
 
 
   
@@ -3793,7 +3793,7 @@ https://jiotvmblive.cdn.jio.com/bpk-tv/Zoom_BTS/output/index.mpd
       </button>
     </div>
       
-<!-- '"` --><!-- </textarea></xmp> --></option></form><form data-turbo="false" action="/session" accept-charset="UTF-8" method="post"><input type="hidden" data-csrf="true" name="authenticity_token" value="xKL724BPMrTmNLnC/6E5ovWUni5bc9ovVmcivg1ukiSze9wd2EdSth6MXUVu+VWvb9CrDSPh5kUDuSeb4tBkjw==" />  <div>
+<!-- '"` --><!-- </textarea></xmp> --></option></form><form data-turbo="false" action="/session" accept-charset="UTF-8" method="post"><input type="hidden" data-csrf="true" name="authenticity_token" value="zU42CN94OwAcw3CyXCx3J+VY3BCuFGQ1u+6pskRTxjMGFh7Vpb9rcHTdoiB8RVx4HmoyMEZCZBSKKHND3qaaJQ==" />  <div>
 
   <input type="hidden" name="add_account" id="add_account" autocomplete="off" class="form-control" />
 
@@ -3819,9 +3819,9 @@ https://jiotvmblive.cdn.jio.com/bpk-tv/Zoom_BTS/output/index.mpd
 <input type="hidden" name="allow_signup" id="allow_signup" autocomplete="off" class="form-control" />
 <input type="hidden" name="client_id" id="client_id" autocomplete="off" class="form-control" />
 <input type="hidden" name="integration" id="integration" autocomplete="off" class="form-control" />
-<input class="form-control" type="text" name="required_field_61e6" hidden="hidden" />
-<input class="form-control" type="hidden" name="timestamp" value="1774616834343" />
-<input class="form-control" type="hidden" name="timestamp_secret" value="0f47da2e709f05f52c572b8d7fc31e540bdee2fffc4ec0d589d068438c37777b" />
+<input class="form-control" type="text" name="required_field_1b47" hidden="hidden" />
+<input class="form-control" type="hidden" name="timestamp" value="1774616878984" />
+<input class="form-control" type="hidden" name="timestamp_secret" value="3746d09936bb1029110708c8f4e70a6b412ec575f4b689002cae71896b7be87e" />
 
 
   </div>
@@ -3830,7 +3830,7 @@ https://jiotvmblive.cdn.jio.com/bpk-tv/Zoom_BTS/output/index.mpd
     <input type="submit" name="commit" value="Sign in" class="btn btn-primary btn-block js-sign-in-button" data-disable-with="Signing in…" data-signin-label="Sign in" data-sso-label="Sign in with your identity provider" development="false" disable-emu-sso="false" />
   </div>
 </form>  <webauthn-status class="js-webauthn-login-emu-control">
-      <include-fragment data-target="webauthn-status.fragment" data-src="/u2f/login_fragment?disable_signup=false&amp;is_emu_login=false&amp;mobile_ios=false&amp;return_to=https%3A%2F%2Fgithub.com%2FPrithvirajdt%2FEntertainment%2Fedit%2Fmain%2Fsources%2Ftali.vxn" data-nonce="v2:c9eeb915-089d-d64c-0581-e43c5ea3428e" data-view-component="true">
+      <include-fragment data-target="webauthn-status.fragment" data-src="/u2f/login_fragment?disable_signup=false&amp;is_emu_login=false&amp;mobile_ios=false&amp;return_to=https%3A%2F%2Fgithub.com%2FPrithvirajdt%2FEntertainment%2Fedit%2Fmain%2Fsources%2Ftali.vxn" data-nonce="v2:8709dccc-86fb-527d-dc2f-c217c92e5b8d" data-view-component="true">
   
   <div data-show-on-forbidden-error hidden>
     <div class="Box">
