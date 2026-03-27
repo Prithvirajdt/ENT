@@ -1803,7 +1803,7 @@ https://jiotvmblive.cdn.jio.com/bpk-tv/Shree_Jagannath_TV_BTS/output/index.mpd
 #EXTVLCOPT:http-user-agent=billatvoriginals
 #EXTHTTP:{ "cookie":"__hdnea__=st=1774609514~exp=1774695914~acl=/*~hmac=717b8a350f21df70c27a52b56e149118042a7c63c29b5f9eb2718bdc469e9a01" }
 https://jiotvmblive.cdn.jio.com/bpk-tv/Shri_Trimbakeshwar_Devasthan_BTS/output/index.mpd
-#EXTINF:-1 tvg-id="698" group-title="Movies" tvg-logo="https://jiotvimages.cdn.jio.com/dare_images/images/Sony_BBC_Earth_HD.png",Sony BBC Earth HD
+#EXTINF:-1 tvg-id="698" group-title="Infotainment" tvg-logo="https://jiotvimages.cdn.jio.com/dare_images/images/Sony_BBC_Earth_HD.png",Sony BBC Earth HD
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://aqfadtv.xyz/clearkey/results.php?keyid=f45e69507f0f5aa1a6e82374efb0af25&key=f84348219837769feb5a26a7b1cd31dc
