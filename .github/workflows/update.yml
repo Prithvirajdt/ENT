@@ -162,13 +162,13 @@ jobs:
               next
             }
             keep { print }
-          ' build/VortexVision.tmp > build/VortexVision.xyn
+          ' build/VortexVision.tmp > build/liveent.xyn
 
           # --------------------------------------------------
           # SAFETY CLEANUP (BLOCK RAW GITHUB LINKS)
           # --------------------------------------------------
-          sed -i '/githubusercontent.com/d' build/VortexVision.xyn
-          sed -i '/raw.githubusercontent.com/d' build/VortexVision.xyn
+          sed -i '/githubusercontent.com/d' build/liveent.xyn
+          sed -i '/raw.githubusercontent.com/d' build/liveent.xyn
 
       # --------------------------------------------------
       # STEP 6: COMMIT & PUSH FINAL PLAYLIST
@@ -178,6 +178,6 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-          git add build/VortexVision.xyn
+          git add build/liveent.xyn
           git diff-index --quiet HEAD || git commit -m "Auto update VortexVision playlist"
           git push || echo "No changes to push"
