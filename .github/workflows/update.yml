@@ -45,9 +45,11 @@ jobs:
           mkdir -p build
           echo "#EXTM3U" > build/liveent.tmp
 
-          # ---------- STATIC ----------
-          if [ -s static/my_static.m3u ]; then
-            sed '1d' static/my_static.m3u >> build/liveent.tmp
+          # --------------------------------------------------
+          # STATIC PLAYLIST (ALWAYS FIRST)
+          # --------------------------------------------------
+          if [ -f static/my_static.m3u ]; then
+            sed '1d' static/my_static.m3u >> build/VortexVision.tmp
           fi
 
           # ---------- SOURCES ----------
