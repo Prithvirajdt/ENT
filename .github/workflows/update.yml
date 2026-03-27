@@ -48,7 +48,7 @@ jobs:
           # --------------------------------------------------
           # STATIC PLAYLIST (ALWAYS FIRST)
           # --------------------------------------------------
-          if [ -f static/my_static.m3u ]; then
+          if [ -f ENT/static/my_static.m3u ]; then
             sed '1d' ENT/static/my_static.m3u >> build/liveent.tmp
           fi
 
