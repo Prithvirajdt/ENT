@@ -1,3 +1,4 @@
+```yaml
 name: Update Master Playlist
 
 on:
@@ -77,13 +78,12 @@ jobs:
 
           mv build/liveent.filtered build/liveent.tmp
 
-          # ---------- DEDUP (CASE-INSENSITIVE, EXACT NAME) ----------
+          # DEDUP (your original)
           awk '
             /^#EXTINF/ {
               name = $0
               sub(/.*?,/, "", name)
 
-              # normalize ONLY case + trim
               key = tolower(name)
               gsub(/^[ \t]+|[ \t]+$/, "", key)
 
@@ -99,7 +99,57 @@ jobs:
             keep { print }
           ' build/liveent.tmp > build/liveent.xyn
 
-          # CLEAN
+
+      # 🔥 VORTEX FILTER (ONLY ADDITION)
+      - name: Filter with VortexVision
+        run: |
+          wget -q -O vortex.m3u https://raw.githubusercontent.com/Prithvirajdt/Live-Tv/refs/heads/main/build/VortexVision.xyn
+
+          # Build allowed list
+          awk -F',' '/^#EXTINF/ {
+            name=$NF
+            key=tolower(name)
+            gsub(/^[ \t]+|[ \t]+$/, "", key)
+            allow[key]=1
+          } END {
+            for (k in allow) print k
+          }' vortex.m3u > vlist.txt
+
+          # Filter liveent
+          awk '
+          NR==FNR {
+            allow[$0]=1
+            next
+          }
+
+          /^#EXTINF/ {
+            line=$0
+            name=line
+            sub(/.*?,/, "", name)
+
+            key=tolower(name)
+            gsub(/^[ \t]+|[ \t]+$/, "", key)
+
+            if (key in allow) {
+              keep=1
+              print
+            } else {
+              keep=0
+            }
+            next
+          }
+
+          keep { print }
+
+          ' vlist.txt build/liveent.xyn > build/liveent.final
+
+          mv build/liveent.final build/liveent.xyn
+
+          rm -f vortex.m3u vlist.txt
+
+      # CLEAN (unchanged)
+      - name: Clean playlist
+        run: |
           sed -i '/githubusercontent.com/d' build/liveent.xyn
           sed -i '/raw.githubusercontent.com/d' build/liveent.xyn
 
@@ -111,4 +161,4 @@ jobs:
           git add build/liveent.xyn
           git diff-index --quiet HEAD || git commit -m "Auto update liveent playlist"
           git push || echo "No changes to push"
-
+```
