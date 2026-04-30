@@ -5,7 +5,6 @@ on:
   schedule:
     - cron: '0 */5 * * *'
 
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -28,49 +27,86 @@ jobs:
         env:
           SRC_24X7: ${{ secrets.SRC_24X7 }}
         run: |
-          wget -O sources/24x7.m3u "$SRC_24X7" || echo "Download failed"
+          if [ -z "$SRC_24X7" ]; then
+            echo "Missing SRC_24X7 secret"
+            exit 1
+          fi
+
+          wget -q -O sources/24x7.m3u "$SRC_24X7"
+
+          if [ ! -s sources/24x7.m3u ]; then
+            echo "Download failed or empty file"
+            exit 1
+          fi
 
       # ------------------------------
-      # CHANNEL LIST (EDIT THIS ONLY)
+      # CHANNEL LIST
       # ------------------------------
       - name: Set channels
         run: |
-          printf "ben 10\nblack clover\ndemon slayer\nfamily guy\nthe simpsons\nbattlebots\nthe rookie\ngame of thrones\nsuits\nultimate  spider\navengers assemble\nslime\n" > channels.txt
+          printf "ben 10\nblack clover\ndemon slayer\nfamily guy\nthe simpsons\nbattlebots\nthe rookie\ngame of thrones\nsuits\nultimate spider\navengers assemble\nslime\n" > channels.txt
 
       # ------------------------------
-      # BUILD (SMART MATCH + FORCE LIVE)
+      # BUILD (CLEAN NAME + MATCH)
       # ------------------------------
       - name: Build playlist
         run: |
           echo "#EXTM3U" > build/live.m3u
 
           awk '
+          function clean_name(n) {
+            n = tolower(n)
+
+            # remove 24x7 / 24/7 / 24*7
+            gsub(/24[\/x\*]7/, "", n)
+
+            # remove extra spaces
+            gsub(/^ +| +$/, "", n)
+            gsub(/  +/, " ", n)
+
+            return n
+          }
+
           NR==FNR {
-            key[tolower($0)] = 1
+            key[clean_name($0)] = 1
             next
           }
 
           /^#EXTINF/ {
-            line = $0
-            lower = tolower($0)
+            original = $0
+
+            # extract name
+            split($0, parts, ",")
+            raw_name = parts[length(parts)]
+
+            name = clean_name(raw_name)
 
             keep = 0
             for (k in key) {
-              if (index(lower, k)) {
+              if (index(name, k)) {
                 keep = 1
                 break
               }
             }
 
             if (keep) {
-              # Force category to Live
+              line = original
+
+              # force Live group
               gsub(/group-title="[^"]*"/, "group-title=\"Live\"", line)
+
+              # replace with cleaned name
+              sub(/,[^,]*$/, "," raw_name, line)   # reset
+              sub(/,[^,]*$/, "," name, line)       # apply clean name
+
               print line
             }
             next
           }
 
-          keep { print }
+          {
+            if (keep) print
+          }
 
           ' channels.txt sources/24x7.m3u >> build/live.m3u
 
