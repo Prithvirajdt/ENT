@@ -32,10 +32,10 @@ jobs:
       # ------------------------------
       - name: Set channels
         run: |
-          echo -e "ben 10\black clover\demon slayer\dragon ball\slime" > channels.txt
+          printf "ben 10\nblack clover\ndemon slayer\ndragon ball\nslime\n" > channels.txt
 
       # ------------------------------
-      # BUILD (EXACT MATCH + FORCE LIVE)
+      # BUILD (SMART MATCH + FORCE LIVE)
       # ------------------------------
       - name: Build playlist
         run: |
@@ -49,21 +49,20 @@ jobs:
 
           /^#EXTINF/ {
             line = $0
-            name = line
-            sub(/.*?,/, "", name)
+            lower = tolower($0)
 
-            keyname = tolower(name)
-            gsub(/^[ \t]+|[ \t]+$/, "", keyname)
+            keep = 0
+            for (k in key) {
+              if (index(lower, k)) {
+                keep = 1
+                break
+              }
+            }
 
-            if (keyname in key) {
-              keep = 1
-
-              # Force category
+            if (keep) {
+              # Force category to Live
               gsub(/group-title="[^"]*"/, "group-title=\"Live\"", line)
-
               print line
-            } else {
-              keep = 0
             }
             next
           }
