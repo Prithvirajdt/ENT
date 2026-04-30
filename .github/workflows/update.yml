@@ -32,7 +32,7 @@ jobs:
       # ------------------------------
       - name: Set channels
         run: |
-          echo -e "demo channel\nsony max\nzee cinema" > channels.txt
+          echo -e "ben 10\black clover\demon slayer\dragon ball\slime" > channels.txt
 
       # ------------------------------
       # BUILD (EXACT MATCH + FORCE LIVE)
