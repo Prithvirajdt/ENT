@@ -35,7 +35,7 @@ jobs:
       # ------------------------------
       - name: Set channels
         run: |
-          printf "ben 10\nblack clover\ndemon slayer\ndragon ball\nslime\n" > channels.txt
+          printf "ben 10\nblack clover\ndemon slayer\nfamily guy\nthe simpsons\nbattlebots\nslime\n" > channels.txt
 
       # ------------------------------
       # BUILD (SMART MATCH + FORCE LIVE)
